@@ -364,12 +364,12 @@ function CharacterNotesModal({
         saveStatus === "saving"
             ? "Сохранение..."
             : saveStatus === "dirty"
-              ? "Есть несохранённые изменения"
-              : saveStatus === "error"
-                ? "Ошибка сохранения"
-                : saveStatus === "saved"
-                  ? "Сохранено"
-                  : "";
+                ? "Есть несохранённые изменения"
+                : saveStatus === "error"
+                    ? "Ошибка сохранения"
+                    : saveStatus === "saved"
+                        ? "Сохранено"
+                        : "";
 
     return (
         <>
@@ -401,7 +401,11 @@ function CharacterNotesModal({
                             disabled={isBusy}
                             onClick={() => void handleClose()}
                         >
-                            ×
+                            
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 6 18 18M18 6 6 18" />
+                            </svg>
+
                         </button>
                     </header>
 

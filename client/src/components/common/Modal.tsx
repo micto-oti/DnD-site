@@ -83,9 +83,9 @@ const styles = {
     },
     wideModal: {
         width: "calc(100% - 1rem)",
-        height: "min(680px, calc(100dvh - 1rem))",
+        height: "min(85%, calc(100dvh - 1rem))",
         minWidth: 0,
-        maxWidth: "960px",
+        maxWidth: "70%",
         padding: 0,
         overflow: "hidden" as const,
     },

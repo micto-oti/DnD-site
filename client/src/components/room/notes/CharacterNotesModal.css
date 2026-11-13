@@ -50,6 +50,8 @@
 }
 
 .character-notes__close {
+    display: grid;
+    place-items: center;
     width: 34px;
     height: 34px;
     flex: 0 0 34px;
@@ -59,7 +61,17 @@
     color: #aaa;
     font-size: 1.5rem;
     line-height: 1;
-    cursor: pointer;
+    cursor: pointer;    
+}
+
+.character-notes__close svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
 }
 
 .character-notes__close:hover {

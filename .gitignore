@@ -1,0 +1,84 @@
+# Зависимости
+node_modules/
+.pnpm-store/
+
+# Сборка
+dist/
+build/
+out/
+.next/
+.vite/
+
+# Переменные окружения
+.env.local
+.env.*.local
+.env*
+!.env.example
+
+# Obsidian
+/.obsidian/
+
+# Generated AI skills
+/server/.agents/
+/server/.claude/
+/server/.cursor/
+/server/.devin/
+
+# Логи
+*.log
+npm-debug.log*
+pnpm-debug.log*
+logs/
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Тесты
+coverage/
+.nyc_output/
+
+# Prisma
+server/prisma/migrations/dev.db
+*.db
+*.db-journal
+docker/postgres/data/
+
+# Local Prisma state
+.prisma/
+
+# Загруженные файлы
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Temporary files
+.cache/
+tmp/
+temp/
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Кеши
+.eslintcache
+.prettiercache
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+
+# Certificates and keys
+*.pem
+*.key
+*.p12
+*.pfx

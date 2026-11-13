@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "composite": true,
+        "tsBuildInfoFile": "./dist/.tsbuildinfo.node",
+        "lib": ["ES2023"],
+        "types": ["node"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": ["vite.config.ts"]
+}

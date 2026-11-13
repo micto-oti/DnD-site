@@ -1,0 +1,25 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "composite": true,
+        "tsBuildInfoFile": "./dist/.tsbuildinfo",
+        "lib": ["ES2023", "DOM", "DOM.Iterable"],
+        "types": ["vite/client"],
+        "jsx": "react-jsx",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowImportingTsExtensions": false,
+        "noEmit": false,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "references": [
+        { "path": "../shared" },
+        { "path": "./tsconfig.node.json" }
+    ],
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+}

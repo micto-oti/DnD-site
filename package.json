@@ -1,0 +1,38 @@
+{
+    "name": "gm-table",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Virtual tabletop для проведения ролевых партий",
+    "packageManager": "pnpm@10.0.0",
+    "engines": {
+        "node": ">=26.0.0",
+        "pnpm": ">=10.0.0"
+    },
+    "scripts": {
+        "dev": "pnpm --parallel --filter \"./client\" --filter \"./server\" dev",
+        "dev:client": "pnpm --filter @gm-table/client dev",
+        "dev:server": "pnpm --filter @gm-table/server dev",
+        "build": "pnpm --recursive build",
+        "build:client": "pnpm --filter @gm-table/client build",
+        "build:server": "pnpm --filter @gm-table/server build",
+        "lint": "pnpm --recursive lint",
+        "lint:fix": "pnpm --recursive lint:fix",
+        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+        "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+        "typecheck": "pnpm --recursive typecheck",
+        "clean": "rm -rf node_modules client/node_modules server/node_modules shared/node_modules",
+        "db:migrate": "pnpm --filter @gm-table/server db:migrate",
+        "db:seed": "pnpm --filter @gm-table/server db:seed",
+        "db:studio": "pnpm --filter @gm-table/server db:studio"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^8.0.0",
+        "@typescript-eslint/parser": "^8.0.0",
+        "eslint": "^9.0.0",
+        "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-react": "^7.35.0",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "prettier": "^3.3.0",
+        "typescript": "^5.6.0"
+    }
+}

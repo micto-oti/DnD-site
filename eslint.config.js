@@ -15,6 +15,8 @@ export default [
                 ecmaVersion: "latest",
                 sourceType: "module",
                 ecmaFeatures: { jsx: true },
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
             },
         },
         plugins: {
@@ -33,6 +35,7 @@ export default [
         rules: {
             // === Базовые ===
             "no-console": ["warn", { allow: ["warn", "error"] }],
+            "no-undef": "off",
             "no-unused-vars": "off",
             "no-var": "error",
             "prefer-const": "error",
@@ -48,10 +51,7 @@ export default [
             "@typescript-eslint/no-explicit-any": "warn",
             "@typescript-eslint/no-floating-promises": "error",
             "@typescript-eslint/no-misused-promises": "error",
-            "@typescript-eslint/consistent-type-imports": [
-                "error",
-                { prefer: "type-imports" },
-            ],
+            "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
             "@typescript-eslint/explicit-function-return-type": "off",
             "@typescript-eslint/no-non-null-assertion": "warn",
 
@@ -59,14 +59,7 @@ export default [
             "import/order": [
                 "error",
                 {
-                    groups: [
-                        "builtin",
-                        "external",
-                        "internal",
-                        "parent",
-                        "sibling",
-                        "index",
-                    ],
+                    groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
                     "newlines-between": "always",
                     alphabetize: { order: "asc", caseInsensitive: true },
                     pathGroups: [

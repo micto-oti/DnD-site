@@ -1,27 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { createScene as apiCreateScene } from "@/api/scenes.js";
-import { getAssets, getFolders } from "@/api/assets.js";
-import { useAssetStore } from "@/store/asset.store.js";
-import CreateSceneModal from "@/components/room/scenes/CreateSceneModal.js";
-import CreateCharacterModal from "@/components/room/modals/CreateCharacterModal.js";
-import SceneList from "@/components/room/scenes/SceneList.js";
-import { useRoomStore } from "@/store/room.store.js";
-import { useSceneStore } from "@/store/scene.store.js";
-import { getSocket } from "@/ws/socket.js";
-import { useSocket } from "@/ws/useSocket.js";
-import SceneCanvas from "@/components/room/scene/SceneCanvas.js";
-import SidePanel from "@/components/room/sidebar/SidePanel.js";
-import AssetPanel from "@/components/room/assets/AssetPanel.js";
-import TokenContextMenu from "@/components/room/scene/TokenContextMenu.js";
-import { useDrawingStore } from "@/store/drawing.store.js";
-import { useMarkerStore } from "@/store/marker.store.js";
-import { useUiStore } from "@/store/ui.store.js";
-import TextContextMenu from "@/components/room/scene/TextContextMenu.js";
-import SceneContextMenu from "@/components/room/scenes/SceneContextMenu.js";
-import SceneEditModal from "@/components/room/scenes/SceneEditModal.js";
-
 import type {
     Asset,
     AssetFolder,
@@ -33,8 +12,29 @@ import type {
     Token,
 } from "@gm-table/shared";
 
-function RoomPage(): React.JSX.Element
-{
+import { getAssets, getFolders } from "@/api/assets.js";
+import { createScene as apiCreateScene } from "@/api/scenes.js";
+import AssetPanel from "@/components/room/assets/AssetPanel.js";
+import CreateCharacterModal from "@/components/room/modals/CreateCharacterModal.js";
+import CharacterNotesModal from "@/components/room/notes/CharacterNotesModal.js";
+import SceneCanvas from "@/components/room/scene/SceneCanvas.js";
+import TextContextMenu from "@/components/room/scene/TextContextMenu.js";
+import TokenContextMenu from "@/components/room/scene/TokenContextMenu.js";
+import CreateSceneModal from "@/components/room/scenes/CreateSceneModal.js";
+import SceneContextMenu from "@/components/room/scenes/SceneContextMenu.js";
+import SceneEditModal from "@/components/room/scenes/SceneEditModal.js";
+import SceneList from "@/components/room/scenes/SceneList.js";
+import SidePanel from "@/components/room/sidebar/SidePanel.js";
+import { useAssetStore } from "@/store/asset.store.js";
+import { useDrawingStore } from "@/store/drawing.store.js";
+import { useMarkerStore } from "@/store/marker.store.js";
+import { useRoomStore } from "@/store/room.store.js";
+import { useSceneStore } from "@/store/scene.store.js";
+import { useUiStore } from "@/store/ui.store.js";
+import { getSocket } from "@/ws/socket.js";
+import { useSocket } from "@/ws/useSocket.js";
+
+function RoomPage(): React.JSX.Element {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ function RoomPage(): React.JSX.Element
     const updateToken = useRoomStore((s) => s.updateToken);
     const moveToken = useRoomStore((s) => s.moveToken);
     const removeToken = useRoomStore((s) => s.removeToken);
-    const [hoveredTokenId, setHoveredTokenId] = useState<string | null>(null);
+    const [, setHoveredTokenId] = useState<string | null>(null);
     const setDrawings = useDrawingStore((s) => s.setDrawings);
     const addDrawing = useDrawingStore((s) => s.addDrawing);
     const removeDrawing = useDrawingStore((s) => s.removeDrawing);
@@ -87,7 +87,7 @@ function RoomPage(): React.JSX.Element
 
     const myUserId = localStorage.getItem("userId");
     const isGm = room !== null && myUserId !== null && room.gmId === myUserId;
-    
+
     const [tokenMenu, setTokenMenu] = useState<{
         tokenId: string;
         x: number;
@@ -107,26 +107,21 @@ function RoomPage(): React.JSX.Element
     } | null>(null);
 
     const [editingScene, setEditingScene] = useState<Scene | null>(null);
+    const [notesTokenId, setNotesTokenId] = useState<string | null>(null);
 
     useSocket();
 
     // Эмитим room:leave при закрытии/перезагрузке вкладки.
     // useEffect cleanup не срабатывает при beforeunload — нужен отдельный обработчик.
-    useEffect(() =>
-    {
-        const handleBeforeUnload = (): void =>
-        {
+    useEffect(() => {
+        const handleBeforeUnload = (): void => {
             const socket = getSocket();
 
-            try
-            {
-                if (socket.connected)
-                    {
-                        socket.emit("room:leave");
-                    }
-            }
-            catch
-            {
+            try {
+                if (socket.connected) {
+                    socket.emit("room:leave");
+                }
+            } catch {
                 // сокет не подключён — ничего не делаем
             }
         };
@@ -136,37 +131,28 @@ function RoomPage(): React.JSX.Element
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, []);
 
-    useEffect(() =>
-    {
-        if (!room)
-        {
+    useEffect(() => {
+        if (!room) {
             return;
         }
 
-        const myToken = tokens.find(
-            (t) => myUserId !== null && t.ownerId === myUserId && t.isMain,
-        );
+        const myToken = tokens.find((t) => myUserId !== null && t.ownerId === myUserId && t.isMain);
 
-        const fallbackColor = isGm
-            ? "#00e5ff"
-            : (myToken?.color ?? "#ffffff");
+        const fallbackColor = isGm ? "#00e5ff" : (myToken?.color ?? "#ffffff");
 
         useUiStore.getState().initColorIfEmpty(fallbackColor);
     }, [room, tokens, myUserId, isGm]);
 
-    useEffect(() =>
-    {
-        if (!id)
-        {
-            navigate("/lobby");
+    useEffect(() => {
+        if (!id) {
+            void navigate("/lobby");
 
             return;
         }
 
         const socket = getSocket();
 
-        const handleState = (state: RoomInitialState): void =>
-        {
+        const handleState = (state: RoomInitialState): void => {
             setInitialState({
                 room: state.room,
                 members: state.members,
@@ -185,34 +171,26 @@ function RoomPage(): React.JSX.Element
             setDrawings(state.drawings);
             setMarkers(state.markers);
 
-            if (state.needsMainToken)
-            {
+            if (state.needsMainToken) {
                 setCreateCharacterOpen(true);
             }
 
             // Загружаем ассеты и папки отдельно (только для ГМ)
             const isGmNow = myUserId !== null && state.room.gmId === myUserId;
 
-            if (isGmNow)
-            {
+            if (isGmNow) {
                 void Promise.all([getFolders(state.room.id), getAssets(state.room.id)])
-                    .then(([folders, assets]) =>
-                    {
-                        console.log("Loaded folders:", folders);
-                        console.log("Loaded assets:", assets);
-
+                    .then(([folders, assets]) => {
                         setFolders(folders);
                         setAssets(assets);
                     })
-                    .catch((err) =>
-                    {
+                    .catch((err) => {
                         console.error("Failed to load:", err);
                     });
             }
         };
 
-        const handleUserJoined = ({ member }: { member: RoomMemberWithUser }): void =>
-        {
+        const handleUserJoined = ({ member }: { member: RoomMemberWithUser }): void => {
             addMember(member);
         };
 
@@ -222,38 +200,31 @@ function RoomPage(): React.JSX.Element
         }: {
             userId: string;
             isOnline: boolean;
-        }): void =>
-        {
+        }): void => {
             setMemberOnline(userId, isOnline);
         };
 
-        const handleUserLeft = ({ userId }: { userId: string }): void =>
-        {
+        const handleUserLeft = ({ userId }: { userId: string }): void => {
             setMemberOnline(userId, false);
         };
 
-        const handleSceneCreated = ({ scene }: { scene: Scene }): void =>
-        {
+        const handleSceneCreated = ({ scene }: { scene: Scene }): void => {
             addScene(scene);
         };
 
-        const handleSceneDeleted = ({ sceneId }: { sceneId: string }): void =>
-        {
+        const handleSceneDeleted = ({ sceneId }: { sceneId: string }): void => {
             removeScene(sceneId);
         };
 
-        const handleSceneActivated = ({ sceneId }: { sceneId: string }): void =>
-        {
+        const handleSceneActivated = ({ sceneId }: { sceneId: string }): void => {
             setActiveSceneId(sceneId);
         };
 
-        const handleTokenCreated = ({ token }: { token: Token }): void =>
-        {
+        const handleTokenCreated = ({ token }: { token: Token }): void => {
             addToken(token);
         };
 
-        const handleTokenUpdated = ({ token }: { token: Token }): void =>
-        {
+        const handleTokenUpdated = ({ token }: { token: Token }): void => {
             updateToken(token);
         };
 
@@ -265,67 +236,54 @@ function RoomPage(): React.JSX.Element
             tokenId: string;
             x: number;
             y: number;
-        }): void =>
-        {
+        }): void => {
             moveToken(tokenId, x, y);
         };
 
-        const handleTokenDeleted = ({ tokenId }: { tokenId: string }): void =>
-        {
+        const handleTokenDeleted = ({ tokenId }: { tokenId: string }): void => {
             removeToken(tokenId);
         };
 
-        const handleTokensRecentered = ({ tokens: newTokens }: { tokens: Token[] }): void =>
-        {
+        const handleTokensRecentered = ({ tokens: newTokens }: { tokens: Token[] }): void => {
             // Обновляем координаты всех токенов
-            for (const t of newTokens)
-            {
+            for (const t of newTokens) {
                 moveToken(t.id, t.x, t.y);
             }
         };
 
-        const handleFolderCreated = ({ folder }: { folder: AssetFolder }): void =>
-        {
+        const handleFolderCreated = ({ folder }: { folder: AssetFolder }): void => {
             addFolder(folder);
         };
 
-        const handleFolderUpdated = ({ folder }: { folder: AssetFolder }): void =>
-        {
+        const handleFolderUpdated = ({ folder }: { folder: AssetFolder }): void => {
             updateFolderInStore(folder);
         };
 
-        const handleFolderDeleted = ({ folderId }: { folderId: string }): void =>
-        {
+        const handleFolderDeleted = ({ folderId }: { folderId: string }): void => {
             removeFolder(folderId);
         };
 
-        const handleAssetCreated = ({ asset }: { asset: Asset }): void =>
-        {
+        const handleAssetCreated = ({ asset }: { asset: Asset }): void => {
             addAsset(asset);
         };
 
-        const handleAssetUpdated = ({ asset }: { asset: Asset }): void =>
-        {
+        const handleAssetUpdated = ({ asset }: { asset: Asset }): void => {
             updateAssetInStore(asset);
         };
 
-        const handleAssetDeleted = ({ assetId }: { assetId: string }): void =>
-        {
+        const handleAssetDeleted = ({ assetId }: { assetId: string }): void => {
             removeAsset(assetId);
         };
 
-        const handleDrawingCreated = ({ drawing }: { drawing: Drawing }): void =>
-        {
+        const handleDrawingCreated = ({ drawing }: { drawing: Drawing }): void => {
             addDrawing(drawing);
         };
 
-        const handleDrawingDeleted = ({ drawingId }: { drawingId: string }): void =>
-        {
+        const handleDrawingDeleted = ({ drawingId }: { drawingId: string }): void => {
             removeDrawing(drawingId);
         };
 
-        const handleDrawingExpired = ({ drawingId }: { drawingId: string }): void =>
-        {
+        const handleDrawingExpired = ({ drawingId }: { drawingId: string }): void => {
             removeDrawing(drawingId);
         };
 
@@ -334,40 +292,31 @@ function RoomPage(): React.JSX.Element
         }: {
             roomId: string;
             authorId: string | null;
-        }): void =>
-        {
-            if (authorId === null)
-            {
+        }): void => {
+            if (authorId === null) {
                 clearAllDrawings();
-            }
-            else
-            {
+            } else {
                 clearOwnDrawings(authorId);
             }
         };
 
-        const handleDrawingUpdated = ({ drawing }: { drawing: Drawing }): void =>
-        {
+        const handleDrawingUpdated = ({ drawing }: { drawing: Drawing }): void => {
             updateDrawingInStore(drawing);
         };
 
-        const handleMarkerCreated = ({ marker }: { marker: Marker }): void =>
-        {
+        const handleMarkerCreated = ({ marker }: { marker: Marker }): void => {
             addMarker(marker);
         };
 
-        const handleMarkerDeleted = ({ markerId }: { markerId: string }): void =>
-        {
+        const handleMarkerDeleted = ({ markerId }: { markerId: string }): void => {
             removeMarker(markerId);
         };
 
-        const handleMarkerExpired = ({ markerId }: { markerId: string }): void =>
-        {
+        const handleMarkerExpired = ({ markerId }: { markerId: string }): void => {
             removeMarker(markerId);
         };
 
-        const handleError = (err: { code: string; message: string }): void =>
-        {
+        const handleError = (err: { code: string; message: string }): void => {
             setError(err.message);
             setLoading(false);
         };
@@ -402,8 +351,7 @@ function RoomPage(): React.JSX.Element
 
         socket.emit("room:join", { roomId: id });
 
-        return () =>
-        {
+        return () => {
             socket.off("room:state", handleState);
             socket.off("room:user-joined", handleUserJoined);
             socket.off("room:user-left", handleUserLeft);
@@ -435,6 +383,7 @@ function RoomPage(): React.JSX.Element
             resetRoom();
             resetScenes();
             resetAssets();
+            resetMarkers();
         };
     }, [
         id,
@@ -464,41 +413,42 @@ function RoomPage(): React.JSX.Element
         clearOwnDrawings,
         clearAllDrawings,
         resetDrawings,
+        updateDrawingInStore,
+        setMarkers,
+        addMarker,
+        removeMarker,
+        resetMarkers,
         addScene,
         removeScene,
         resetRoom,
         resetScenes,
+        myUserId,
     ]);
 
-    const handleCreateScene = async (name: string, backgroundUrl?: string): Promise<void> =>
-    {
-        if (!id)
-        {
+    const handleCreateScene = async (name: string, backgroundUrl?: string): Promise<void> => {
+        if (!id) {
             return;
         }
 
-        const scene = await apiCreateScene(id, { name, backgroundUrl });
+        await apiCreateScene(id, { name, backgroundUrl });
     };
 
-    const handleActivateScene = (sceneId: string): void =>
-    {
+    const handleActivateScene = (sceneId: string): void => {
         const socket = getSocket();
 
         socket.emit("scene:activate", { sceneId });
     };
 
-    if (loading)
-    {
+    if (loading) {
         return <div style={styles.center}>Загрузка комнаты...</div>;
     }
 
-    if (error)
-    {
+    if (error) {
         return (
             <div style={styles.center}>
                 <div>
                     <p style={styles.error}>{error}</p>
-                    <button onClick={() => navigate("/lobby")} style={styles.button}>
+                    <button onClick={() => void navigate("/lobby")} style={styles.button}>
                         В lobby
                     </button>
                 </div>
@@ -506,24 +456,20 @@ function RoomPage(): React.JSX.Element
         );
     }
 
-    if (!room)
-    {
+    if (!room) {
         return <div style={styles.center}>Комната не загружена</div>;
     }
 
     const activeScene = scenes.find((s) => s.id === activeSceneId);
 
-    const myToken = tokens.find(
-        (t) => myUserId !== null && t.ownerId === myUserId && t.isMain,
-    );
-    const pingColor = isGm ? "#00e5ff" : (myToken?.color ?? "#ffffff");
-    
-    const handleTokenMove = (
-        tokenId: string,
-        xPercent: number,
-        yPercent: number,
-    ): void =>
-    {
+    const myToken = tokens.find((t) => myUserId !== null && t.ownerId === myUserId && t.isMain);
+    const notesToken = notesTokenId
+        ? (tokens.find((token) => token.id === notesTokenId) ?? null)
+        : null;
+    const notesOwnerName = notesToken?.ownerId
+        ? members.find((member) => member.userId === notesToken.ownerId)?.user.nickname
+        : undefined;
+    const handleTokenMove = (tokenId: string, xPercent: number, yPercent: number): void => {
         // Оптимистичное обновление: сразу двигаем локально
         moveToken(tokenId, xPercent, yPercent);
 
@@ -538,50 +484,42 @@ function RoomPage(): React.JSX.Element
     };
 
     const handleCreateCharacter = async (data: {
-            name: string;
-            color: string;
-            imageUrl?: string;
-            hpCurrent: number;
-            hpMax: number;
-            spCurrent: number;
-            spMax: number;
-            level: number;
-            experience: number;
-        }): Promise<void> =>
-        {
-            if (!id)
-            {
-                return;
-            }
+        name: string;
+        color: string;
+        imageUrl?: string;
+        hpCurrent: number;
+        hpMax: number;
+        spCurrent: number;
+        spMax: number;
+        level: number;
+        experience: number;
+    }): Promise<void> => {
+        if (!id) {
+            return;
+        }
 
-            const socket = getSocket();
+        const socket = getSocket();
 
-            socket.emit("token:create", {
-                roomId: id,
-                name: data.name,
-                color: data.color,
-                imageUrl: data.imageUrl,
-                isMain: true,
-                ownerId: myUserId,
-                hpCurrent: data.hpCurrent,
-                hpMax: data.hpMax,
-                spCurrent: data.spCurrent,
-                spMax: data.spMax,
-                level: data.level,
-                experience: data.experience,
-            });
+        socket.emit("token:create", {
+            roomId: id,
+            name: data.name,
+            color: data.color,
+            imageUrl: data.imageUrl,
+            isMain: true,
+            ownerId: myUserId,
+            hpCurrent: data.hpCurrent,
+            hpMax: data.hpMax,
+            spCurrent: data.spCurrent,
+            spMax: data.spMax,
+            level: data.level,
+            experience: data.experience,
+        });
 
-            setCreateCharacterOpen(false);
-        };
+        setCreateCharacterOpen(false);
+    };
 
-        const handleAssetDrop = (
-        assetId: string,
-        xPercent: number,
-        yPercent: number,
-    ): void =>
-    {
-        if (!id)
-        {
+    const handleAssetDrop = (assetId: string, xPercent: number, yPercent: number): void => {
+        if (!id) {
             return;
         }
 
@@ -595,10 +533,8 @@ function RoomPage(): React.JSX.Element
         });
     };
 
-    const handleRecenterAll = (): void =>
-    {
-        if (!id)
-        {
+    const handleRecenterAll = (): void => {
+        if (!id) {
             return;
         }
 
@@ -607,10 +543,8 @@ function RoomPage(): React.JSX.Element
         socket.emit("tokens:recenter-all", { roomId: id });
     };
 
-    const handleRecenterMine = (): void =>
-    {
-        if (!id)
-        {
+    const handleRecenterMine = (): void => {
+        if (!id) {
             return;
         }
 
@@ -619,22 +553,18 @@ function RoomPage(): React.JSX.Element
         socket.emit("tokens:recenter-mine", { roomId: id });
     };
 
-    const handleTokenContextMenu = (tokenId: string, x: number, y: number): void =>
-    {
+    const handleTokenContextMenu = (tokenId: string, x: number, y: number): void => {
         setTokenMenu({ tokenId, x, y });
     };
 
-    const handleTextContextMenu = (drawing: Drawing, x: number, y: number): void =>
-    {
+    const handleTextContextMenu = (drawing: Drawing, x: number, y: number): void => {
         setTextMenu({ drawing, x, y });
     };
 
-    const handleSceneContextMenu = (scene: Scene, x: number, y: number): void =>
-    {
+    const handleSceneContextMenu = (scene: Scene, x: number, y: number): void => {
         setSceneMenu({ scene, x, y });
     };
 
-    
     return (
         <div style={styles.container}>
             <header style={styles.header}>
@@ -692,7 +622,10 @@ function RoomPage(): React.JSX.Element
                         <div style={styles.centerColumn}>
                             <p>Нет активной сцены</p>
                             {isGm && (
-                                <button onClick={() => setCreateSceneOpen(true)} style={styles.button}>
+                                <button
+                                    onClick={() => setCreateSceneOpen(true)}
+                                    style={styles.button}
+                                >
                                     Создать сцену
                                 </button>
                             )}
@@ -702,27 +635,29 @@ function RoomPage(): React.JSX.Element
                 <SidePanel />
             </div>
 
-            {tokenMenu && (() => {
-                const token = tokens.find((t) => t.id === tokenMenu.tokenId);
+            {tokenMenu &&
+                (() => {
+                    const token = tokens.find((t) => t.id === tokenMenu.tokenId);
 
-                if (!token)
-                {
-                    return null;
-                }
+                    if (!token) {
+                        return null;
+                    }
 
-                const canEdit =
-                    isGm || (myUserId !== null && token.ownerId === myUserId);
+                    const canEdit = isGm || (myUserId !== null && token.ownerId === myUserId);
+                    const canTakeNotes =
+                        myUserId !== null && token.ownerId !== null && token.ownerId !== myUserId;
 
-                return (
-                    <TokenContextMenu
-                        token={token}
-                        position={{ x: tokenMenu.x, y: tokenMenu.y }}
-                        canEdit={canEdit}
-                        isGm={isGm}
-                        onClose={() => setTokenMenu(null)}
-                    />
-                );
-            })()}
+                    return (
+                        <TokenContextMenu
+                            token={token}
+                            position={{ x: tokenMenu.x, y: tokenMenu.y }}
+                            canEdit={canEdit}
+                            isGm={isGm}
+                            onOpenNotes={canTakeNotes ? () => setNotesTokenId(token.id) : undefined}
+                            onClose={() => setTokenMenu(null)}
+                        />
+                    );
+                })()}
 
             {textMenu && (
                 <TextContextMenu
@@ -759,6 +694,13 @@ function RoomPage(): React.JSX.Element
                 open={createCharacterOpen}
                 onClose={() => setCreateCharacterOpen(false)}
                 onCreate={handleCreateCharacter}
+            />
+
+            <CharacterNotesModal
+                open={notesToken !== null}
+                token={notesToken}
+                ownerName={notesOwnerName}
+                onClose={() => setNotesTokenId(null)}
             />
         </div>
     );

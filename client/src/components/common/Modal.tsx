@@ -1,26 +1,31 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 
-interface ModalProps
-{
+interface ModalProps {
     open: boolean;
     onClose: () => void;
     title?: string;
     children: React.ReactNode;
+    size?: "default" | "wide";
+    ariaLabel?: string;
 }
 
-function Modal({ open, onClose, title, children }: ModalProps): React.JSX.Element | null
-{
-    useEffect(() =>
-    {
-        if (!open)
-        {
+function Modal({
+    open,
+    onClose,
+    title,
+    children,
+    size = "default",
+    ariaLabel,
+}: ModalProps): React.JSX.Element | null {
+    const titleId = useId();
+
+    useEffect(() => {
+        if (!open) {
             return;
         }
 
-        const handleEscape = (e: KeyboardEvent): void =>
-        {
-            if (e.key === "Escape")
-            {
+        const handleEscape = (e: KeyboardEvent): void => {
+            if (e.key === "Escape") {
                 onClose();
             }
         };
@@ -30,15 +35,28 @@ function Modal({ open, onClose, title, children }: ModalProps): React.JSX.Elemen
         return () => window.removeEventListener("keydown", handleEscape);
     }, [open, onClose]);
 
-    if (!open)
-    {
+    if (!open) {
         return null;
     }
 
     return (
         <div style={styles.overlay} onClick={onClose}>
-            <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                {title && <h2 style={styles.title}>{title}</h2>}
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={title ? undefined : ariaLabel}
+                aria-labelledby={title ? titleId : undefined}
+                style={{
+                    ...styles.modal,
+                    ...(size === "wide" ? styles.wideModal : {}),
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {title && (
+                    <h2 id={titleId} style={styles.title}>
+                        {title}
+                    </h2>
+                )}
                 {children}
             </div>
         </div>
@@ -59,8 +77,17 @@ const styles = {
         background: "#2a2a2e",
         borderRadius: "8px",
         padding: "1.5rem",
-        minWidth: "320px",
+        minWidth: "min(320px, calc(100vw - 2rem))",
         maxWidth: "480px",
+        boxSizing: "border-box" as const,
+    },
+    wideModal: {
+        width: "calc(100% - 1rem)",
+        height: "min(680px, calc(100dvh - 1rem))",
+        minWidth: 0,
+        maxWidth: "960px",
+        padding: 0,
+        overflow: "hidden" as const,
     },
     title: {
         marginBottom: "1rem",

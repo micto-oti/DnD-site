@@ -7,6 +7,7 @@ export * from "./user.js";
 export * from "./room.js";
 export * from "./scene.js";
 export * from "./token.js";
+export * from "./token-note.js";
 export * from "./marker.js";
 export * from "./drawing.js";
 export * from "./asset.js";

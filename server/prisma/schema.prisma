@@ -1,10 +1,10 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================
@@ -12,21 +12,22 @@ datasource db {
 // ============================================================
 
 model User {
-    id        String   @id @default(uuid()) @db.Uuid
-    email     String   @unique
-    nickname  String
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  nickname  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-    createdRooms    Room[]             @relation("RoomGM")
-    memberships     RoomMember[]
-    ownedTokens     Token[]            @relation("TokenOwner")
-    uploadedAssets  Asset[]
-    createdStatuses StatusDefinition[]
-    messages        Message[]
-    actionRequests  ActionRequest[]
+  createdRooms       Room[]             @relation("RoomGM")
+  memberships        RoomMember[]
+  ownedTokens        Token[]            @relation("TokenOwner")
+  uploadedAssets     Asset[]
+  createdStatuses    StatusDefinition[]
+  messages           Message[]
+  actionRequests     ActionRequest[]
+  authoredTokenNotes TokenNote[]
 
-    @@map("users")
+  @@map("users")
 }
 
 // ============================================================
@@ -34,44 +35,44 @@ model User {
 // ============================================================
 
 model Room {
-    id        String   @id @default(uuid()) @db.Uuid
-    shortId   String   @unique @map("short_id")
-    name      String
-    gmId      String   @map("gm_id") @db.Uuid
-    createdAt DateTime @default(now()) @map("created_at")
+  id        String   @id @default(uuid()) @db.Uuid
+  shortId   String   @unique @map("short_id")
+  name      String
+  gmId      String   @map("gm_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
 
-    gm             User               @relation("RoomGM", fields: [gmId], references: [id], onDelete: Cascade)
-    members        RoomMember[]
-    scenes         Scene[]
-    tokens         Token[]
-    assetFolders   AssetFolder[]
-    assets         Asset[]
-    statuses       StatusDefinition[]
-    state          RoomState?
-    actionRequests ActionRequest[]
-    messages       Message[]
+  gm             User               @relation("RoomGM", fields: [gmId], references: [id], onDelete: Cascade)
+  members        RoomMember[]
+  scenes         Scene[]
+  tokens         Token[]
+  assetFolders   AssetFolder[]
+  assets         Asset[]
+  statuses       StatusDefinition[]
+  state          RoomState?
+  actionRequests ActionRequest[]
+  messages       Message[]
 
-    @@map("rooms")
+  @@map("rooms")
 }
 
 enum Role {
-    gm
-    player
+  gm
+  player
 }
 
 model RoomMember {
-    roomId          String   @map("room_id") @db.Uuid
-    userId          String   @map("user_id") @db.Uuid
-    role            Role
-    actionConfirmed Boolean  @default(false) @map("action_confirmed")
-    isOnline        Boolean  @default(false) @map("is_online")
-    joinedAt        DateTime @default(now()) @map("joined_at")
+  roomId          String   @map("room_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  role            Role
+  actionConfirmed Boolean  @default(false) @map("action_confirmed")
+  isOnline        Boolean  @default(false) @map("is_online")
+  joinedAt        DateTime @default(now()) @map("joined_at")
 
-    room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@id([roomId, userId])
-    @@map("room_members")
+  @@id([roomId, userId])
+  @@map("room_members")
 }
 
 // ============================================================
@@ -79,18 +80,18 @@ model RoomMember {
 // ============================================================
 
 model Scene {
-    id            String   @id @default(uuid()) @db.Uuid
-    roomId        String   @map("room_id") @db.Uuid
-    name          String
-    backgroundUrl String?  @map("background_url")
-    orderIndex    Int      @default(0) @map("order_index")
-    createdAt     DateTime @default(now()) @map("created_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  roomId        String   @map("room_id") @db.Uuid
+  name          String
+  backgroundUrl String?  @map("background_url")
+  orderIndex    Int      @default(0) @map("order_index")
+  createdAt     DateTime @default(now()) @map("created_at")
 
-    room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    activeInStates RoomState[] @relation("ActiveScene")
+  room           Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  activeInStates RoomState[] @relation("ActiveScene")
 
-    @@index([roomId])
-    @@map("scenes")
+  @@index([roomId])
+  @@map("scenes")
 }
 
 // ============================================================
@@ -98,41 +99,59 @@ model Scene {
 // ============================================================
 
 model Token {
-    id       String  @id @default(uuid()) @db.Uuid
-    roomId   String  @map("room_id") @db.Uuid
-    assetId  String? @map("asset_id") @db.Uuid
-    name     String
-    imageUrl String? @map("image_url")
-    x        Float   @default(50)
-    y        Float   @default(50)
-    size     Float   @default(1.0)
-    color    String  @default("#3498db")
-    ownerId  String? @map("owner_id") @db.Uuid
+  id       String  @id @default(uuid()) @db.Uuid
+  roomId   String  @map("room_id") @db.Uuid
+  assetId  String? @map("asset_id") @db.Uuid
+  name     String
+  imageUrl String? @map("image_url")
+  x        Float   @default(50)
+  y        Float   @default(50)
+  size     Float   @default(1.0)
+  color    String  @default("#3498db")
+  ownerId  String? @map("owner_id") @db.Uuid
 
-    isMain   Boolean @default(false) @map("is_main")
-    isOnline Boolean @default(false) @map("is_online")
+  isMain   Boolean @default(false) @map("is_main")
+  isOnline Boolean @default(false) @map("is_online")
 
-    hpCurrent Int? @map("hp_current")
-    hpMax     Int? @map("hp_max")
-    spCurrent Int? @map("sp_current")
-    spMax     Int? @map("sp_max")
+  hpCurrent Int? @map("hp_current")
+  hpMax     Int? @map("hp_max")
+  spCurrent Int? @map("sp_current")
+  spMax     Int? @map("sp_max")
 
-    level      Int? @map("level")
-    experience Int? @map("experience")
+  level      Int? @map("level")
+  experience Int? @map("experience")
 
-    statuses Json @default("[]")
+  statuses Json @default("[]")
 
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-    room  Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
-    owner User?  @relation("TokenOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  room  Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  asset Asset?      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  owner User?       @relation("TokenOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  notes TokenNote[]
 
-    @@index([roomId])
-    @@index([ownerId])
-    @@index([assetId])
-    @@map("tokens")
+  @@index([roomId])
+  @@index([ownerId])
+  @@index([assetId])
+  @@map("tokens")
+}
+
+model TokenNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenId   String   @map("token_id") @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  title     String
+  content   String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  token  Token @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([tokenId, authorId, updatedAt(sort: Desc)])
+  @@index([authorId])
+  @@map("token_notes")
 }
 
 // ============================================================
@@ -140,46 +159,46 @@ model Token {
 // ============================================================
 
 model AssetFolder {
-    id         String   @id @default(uuid()) @db.Uuid
-    roomId     String   @map("room_id") @db.Uuid
-    name       String
-    orderIndex Int      @default(0) @map("order_index")
-    isDefault  Boolean  @default(false) @map("is_default")
-    createdAt  DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid()) @db.Uuid
+  roomId     String   @map("room_id") @db.Uuid
+  name       String
+  orderIndex Int      @default(0) @map("order_index")
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-    room   Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    assets Asset[]
+  room   Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  assets Asset[]
 
-    @@index([roomId])
-    @@map("asset_folders")
+  @@index([roomId])
+  @@map("asset_folders")
 }
 
 model Asset {
-    id         String   @id @default(uuid()) @db.Uuid
-    roomId     String   @map("room_id") @db.Uuid
-    folderId   String?  @map("folder_id") @db.Uuid
-    name       String
-    imageUrl   String?  @map("image_url")
-    color      String   @default("#3498db")
-    hpCurrent  Int?     @map("hp_current")
-    hpMax      Int?     @map("hp_max")
-    spCurrent  Int?     @map("sp_current")
-    spMax      Int?     @map("sp_max")
-    level      Int?     @map("level")
-    experience Int?     @map("experience")
-    size       Float    @default(1.0)
-    orderIndex Int      @default(0) @map("order_index")
-    createdBy  String?  @map("created_by") @db.Uuid
-    createdAt  DateTime @default(now()) @map("created_at")
+  id         String   @id @default(uuid()) @db.Uuid
+  roomId     String   @map("room_id") @db.Uuid
+  folderId   String?  @map("folder_id") @db.Uuid
+  name       String
+  imageUrl   String?  @map("image_url")
+  color      String   @default("#3498db")
+  hpCurrent  Int?     @map("hp_current")
+  hpMax      Int?     @map("hp_max")
+  spCurrent  Int?     @map("sp_current")
+  spMax      Int?     @map("sp_max")
+  level      Int?     @map("level")
+  experience Int?     @map("experience")
+  size       Float    @default(1.0)
+  orderIndex Int      @default(0) @map("order_index")
+  createdBy  String?  @map("created_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
 
-    room   Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    folder AssetFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
-    author User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
-    tokens Token[]
+  room   Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  folder AssetFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  author User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  tokens Token[]
 
-    @@index([roomId])
-    @@index([folderId])
-    @@map("assets")
+  @@index([roomId])
+  @@index([folderId])
+  @@map("assets")
 }
 
 // ============================================================
@@ -187,24 +206,24 @@ model Asset {
 // ============================================================
 
 model StatusDefinition {
-    id        String   
-    roomId    String   @map("room_id") @db.Uuid
-    createdBy String?  @map("created_by") @db.Uuid
-    name      String
-    icon      String
-    color     String
-    maxStacks Int      @default(999) @map("max_stacks")
-    maxCount  Int?     @map("max_count")
-    hasCount  Boolean  @default(false) @map("has_count")
-    isDefault Boolean  @default(false) @map("is_default")
-    createdAt DateTime @default(now()) @map("created_at")
+  id        String
+  roomId    String   @map("room_id") @db.Uuid
+  createdBy String?  @map("created_by") @db.Uuid
+  name      String
+  icon      String
+  color     String
+  maxStacks Int      @default(999) @map("max_stacks")
+  maxCount  Int?     @map("max_count")
+  hasCount  Boolean  @default(false) @map("has_count")
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
 
-    room    Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    creator User?  @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  room    Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  creator User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
 
-    @@id([roomId, id])
-    @@index([roomId])
-    @@map("statuses_library")
+  @@id([roomId, id])
+  @@index([roomId])
+  @@map("statuses_library")
 }
 
 // ============================================================
@@ -212,20 +231,20 @@ model StatusDefinition {
 // ============================================================
 
 enum TurnState {
-    active
-    gm_control
+  active
+  gm_control
 }
 
 model RoomState {
-    roomId        String    @id @map("room_id") @db.Uuid
-    activeSceneId String?   @map("active_scene_id") @db.Uuid
-    turnState     TurnState @default(active) @map("turn_state")
-    updatedAt     DateTime  @updatedAt @map("updated_at")
+  roomId        String    @id @map("room_id") @db.Uuid
+  activeSceneId String?   @map("active_scene_id") @db.Uuid
+  turnState     TurnState @default(active) @map("turn_state")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-    room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    activeScene Scene? @relation("ActiveScene", fields: [activeSceneId], references: [id], onDelete: SetNull)
+  room        Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  activeScene Scene? @relation("ActiveScene", fields: [activeSceneId], references: [id], onDelete: SetNull)
 
-    @@map("room_state")
+  @@map("room_state")
 }
 
 // ============================================================
@@ -233,26 +252,26 @@ model RoomState {
 // ============================================================
 
 enum RequestStatus {
-    pending
-    accepted
-    rejected
-    expired
+  pending
+  accepted
+  rejected
+  expired
 }
 
 model ActionRequest {
-    id         String        @id @default(uuid()) @db.Uuid
-    roomId     String        @map("room_id") @db.Uuid
-    userId     String        @map("user_id") @db.Uuid
-    status     RequestStatus @default(pending)
-    createdAt  DateTime      @default(now()) @map("created_at")
-    expiresAt  DateTime      @map("expires_at")
-    resolvedAt DateTime?     @map("resolved_at")
+  id         String        @id @default(uuid()) @db.Uuid
+  roomId     String        @map("room_id") @db.Uuid
+  userId     String        @map("user_id") @db.Uuid
+  status     RequestStatus @default(pending)
+  createdAt  DateTime      @default(now()) @map("created_at")
+  expiresAt  DateTime      @map("expires_at")
+  resolvedAt DateTime?     @map("resolved_at")
 
-    room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([roomId, status])
-    @@map("action_requests")
+  @@index([roomId, status])
+  @@map("action_requests")
 }
 
 // ============================================================
@@ -260,23 +279,23 @@ model ActionRequest {
 // ============================================================
 
 enum MessageMode {
-    common
+  common
 }
 
 model Message {
-    id        String      @id @default(uuid()) @db.Uuid
-    roomId    String      @map("room_id") @db.Uuid
-    userId    String?     @map("user_id") @db.Uuid
-    nickname  String
-    mode      MessageMode @default(common)
-    content   String
-    isRoll    Boolean     @default(false) @map("is_roll")
-    rollData  Json?       @map("roll_data")
-    createdAt DateTime    @default(now()) @map("created_at")
+  id        String      @id @default(uuid()) @db.Uuid
+  roomId    String      @map("room_id") @db.Uuid
+  userId    String?     @map("user_id") @db.Uuid
+  nickname  String
+  mode      MessageMode @default(common)
+  content   String
+  isRoll    Boolean     @default(false) @map("is_roll")
+  rollData  Json?       @map("roll_data")
+  createdAt DateTime    @default(now()) @map("created_at")
 
-    room Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
-    user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  room Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-    @@index([roomId, createdAt])
-    @@map("messages")
+  @@index([roomId, createdAt])
+  @@map("messages")
 }

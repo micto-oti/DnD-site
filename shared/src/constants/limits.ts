@@ -28,6 +28,12 @@ export const LIMITS = {
     TOKEN_MAX_SIZE: 4.0,
     TOKEN_DEFAULT_SIZE: 1.0,
 
+    // === Заметка о персонаже ===
+    TOKEN_NOTE_TITLE_MIN_LENGTH: 1,
+    TOKEN_NOTE_TITLE_MAX_LENGTH: 100,
+    TOKEN_NOTE_CONTENT_MAX_LENGTH: 100_000,
+    TOKEN_NOTE_MAX_PER_TOKEN: 100,
+
     // === Метка ===
     MARKER_LABEL_MAX_LENGTH: 100,
     MARKER_MAX_PER_ROOM: 200,
@@ -58,18 +64,13 @@ export const LIMITS = {
     CHAT_HISTORY_PAGE_SIZE: 100,
 
     // === Файлы ===
-    UPLOAD_MAX_SIZE_BYTES: 5 * 1024 * 1024,   // 5 МБ
-    UPLOAD_ALLOWED_MIME_TYPES: [
-        "image/png",
-        "image/jpeg",
-        "image/webp",
-        "image/gif",
-    ] as const,
+    UPLOAD_MAX_SIZE_BYTES: 5 * 1024 * 1024, // 5 МБ
+    UPLOAD_ALLOWED_MIME_TYPES: ["image/png", "image/jpeg", "image/webp", "image/gif"] as const,
 
     // === Броски кубиков ===
-    DICE_MAX_COUNT: 100,      // максимум кубиков в одном броске
-    DICE_MAX_SIDES: 1000,     // максимум граней
-    DICE_MAX_MODIFIER: 1000,  // максимум модификатора
+    DICE_MAX_COUNT: 100, // максимум кубиков в одном броске
+    DICE_MAX_SIDES: 1000, // максимум граней
+    DICE_MAX_MODIFIER: 1000, // максимум модификатора
 } as const;
 
 export type Limits = typeof LIMITS;

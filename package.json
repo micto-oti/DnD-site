@@ -2,6 +2,7 @@
     "name": "gm-table",
     "version": "0.1.0",
     "private": true,
+    "type": "module",
     "description": "Virtual tabletop для проведения ролевых партий",
     "packageManager": "pnpm@10.0.0",
     "engines": {
@@ -26,6 +27,7 @@
         "db:studio": "pnpm --filter @gm-table/server db:studio"
     },
     "devDependencies": {
+        "@eslint/js": "^9.0.0",
         "@typescript-eslint/eslint-plugin": "^8.0.0",
         "@typescript-eslint/parser": "^8.0.0",
         "eslint": "^9.0.0",

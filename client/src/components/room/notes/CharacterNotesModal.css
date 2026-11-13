@@ -1,0 +1,320 @@
+.character-notes {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    color: #e8e8e8;
+}
+
+.character-notes__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 1.1rem;
+    border-bottom: 1px solid #3a3a3e;
+    background: #2a2a2e;
+}
+
+.character-notes__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.character-notes__heading h2,
+.character-notes__heading p {
+    margin: 0;
+}
+
+.character-notes__heading h2 {
+    overflow: hidden;
+    font-size: 1.1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.character-notes__heading p {
+    margin-top: 0.2rem;
+    color: #999;
+    font-size: 0.75rem;
+}
+
+.character-notes__token-dot {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 6%);
+}
+
+.character-notes__close {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #aaa;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.character-notes__close:hover {
+    border-color: #4a4a4e;
+    background: #333338;
+    color: #fff;
+}
+
+.character-notes__body {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+}
+
+.character-notes__sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid #3a3a3e;
+    background: #222226;
+}
+
+.character-notes__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid #343438;
+    color: #aaa;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.character-notes__sidebar-header button,
+.character-notes__empty button {
+    border: 0;
+    border-radius: 5px;
+    background: #3a7bd5;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.character-notes__sidebar-header button {
+    padding: 0.4rem 0.55rem;
+}
+
+.character-notes__list {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 0;
+    padding: 0.55rem;
+    overflow: auto;
+}
+
+.character-notes__list-message {
+    padding: 1rem 0.5rem;
+    color: #777;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.character-notes__note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.65rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #ddd;
+    text-align: left;
+    cursor: pointer;
+}
+
+.character-notes__note:hover {
+    background: #2c2c31;
+}
+
+.character-notes__note--active {
+    border-color: #3a7bd5;
+    background: #2b3442;
+}
+
+.character-notes__note-title {
+    overflow: hidden;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.character-notes__note-date {
+    color: #777;
+    font-size: 0.68rem;
+}
+
+.character-notes__editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: #1d1d20;
+}
+
+.character-notes__editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #343438;
+}
+
+.character-notes__editor-toolbar input {
+    min-width: 0;
+    flex: 1;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    outline: none;
+    background: transparent;
+    color: #f1f1f1;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.character-notes__editor-toolbar input:focus {
+    border-color: #3a7bd5;
+    background: #242429;
+}
+
+.character-notes__delete {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: #341c1f;
+    color: #e78b91;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.character-notes__delete:hover {
+    background: #3b2528;
+}
+
+.character-notes__editor textarea {
+    width: 100%;
+    min-height: 0;
+    flex: 1;
+    resize: none;
+    padding: 1rem 1.15rem;
+    border: 0;
+    outline: 0;
+    background: #1d1d20;
+    color: #e8e8e8;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+.character-notes__editor textarea::placeholder {
+    color: #666;
+}
+
+.character-notes__editor input:disabled,
+.character-notes__editor textarea:disabled {
+    opacity: 0.65;
+}
+
+.character-notes__status {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 1px;
+    padding: 0.2rem 0.5rem;
+    border-top: 1px solid #343438;
+    color: #777;
+    font-size: 0.7rem;
+}
+
+.character-notes__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.5rem;
+    color: #888;
+    text-align: center;
+}
+
+.character-notes__empty strong {
+    color: #ddd;
+}
+
+.character-notes__empty button {
+    margin-top: 0.35rem;
+    padding: 0.55rem 0.8rem;
+}
+
+.character-notes button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.character-notes .is-error {
+    color: #e4747c;
+}
+
+@media (max-width: 700px) {
+    .character-notes__header {
+        padding: 0.75rem;
+    }
+
+    .character-notes__heading p {
+        overflow: hidden;
+        max-width: 70vw;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .character-notes__body {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 175px minmax(0, 1fr);
+    }
+
+    .character-notes__sidebar {
+        border-right: 0;
+        border-bottom: 1px solid #3a3a3e;
+    }
+
+    .character-notes__list {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .character-notes__note {
+        width: 190px;
+        min-width: 190px;
+    }
+
+    .character-notes__editor-toolbar,
+    .character-notes__editor textarea {
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+}

@@ -1,15 +1,16 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { getSocket } from "@/ws/socket.js";
 import type { Token } from "@gm-table/shared";
-import ConfirmModal from "@/components/common/ConfirmModal.js";
 
-interface TokenContextMenuProps
-{
+import ConfirmModal from "@/components/common/ConfirmModal.js";
+import { getSocket } from "@/ws/socket.js";
+
+interface TokenContextMenuProps {
     token: Token;
     position: { x: number; y: number };
     canEdit: boolean;
     isGm: boolean;
+    onOpenNotes?: () => void;
     onClose: () => void;
 }
 
@@ -25,20 +26,18 @@ function TokenContextMenu({
     position,
     canEdit,
     isGm,
+    onOpenNotes,
     onClose,
-}: TokenContextMenuProps): React.JSX.Element
-{
+}: TokenContextMenuProps): React.JSX.Element {
     const menuRef = useRef<HTMLDivElement>(null);
     const [finalPos, setFinalPos] = useState({ x: position.x, y: position.y });
     const [confirmDelete, setConfirmDelete] = useState(false);
 
     // Автопозиционирование
-    useLayoutEffect(() =>
-    {
+    useLayoutEffect(() => {
         const menu = menuRef.current;
 
-        if (!menu)
-        {
+        if (!menu) {
             return;
         }
 
@@ -47,13 +46,11 @@ function TokenContextMenu({
         let x = position.x;
         let y = position.y;
 
-        if (x + rect.width > window.innerWidth)
-        {
+        if (x + rect.width > window.innerWidth) {
             x = window.innerWidth - rect.width - 8;
         }
 
-        if (y + rect.height > window.innerHeight)
-        {
+        if (y + rect.height > window.innerHeight) {
             y = window.innerHeight - rect.height - 8;
         }
 
@@ -64,40 +61,31 @@ function TokenContextMenu({
     }, [position.x, position.y]);
 
     // Закрытие
-    useEffect(() =>
-    {
-        const handler = (e: MouseEvent): void =>
-        {
+    useEffect(() => {
+        const handler = (e: MouseEvent): void => {
             // Не закрываем меню, если открыта модалка
-            if (confirmDelete)
-            {
+            if (confirmDelete) {
                 return;
             }
 
-            if (menuRef.current && !menuRef.current.contains(e.target as Node))
-            {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 onClose();
             }
         };
 
-        const timeout = setTimeout(() =>
-        {
+        const timeout = setTimeout(() => {
             document.addEventListener("mousedown", handler);
         }, 0);
 
-        return () =>
-        {
+        return () => {
             clearTimeout(timeout);
             document.removeEventListener("mousedown", handler);
         };
     }, [onClose, confirmDelete]);
 
-    useEffect(() =>
-    {
-        const handler = (e: KeyboardEvent): void =>
-        {
-            if (e.key === "Escape")
-            {
+    useEffect(() => {
+        const handler = (e: KeyboardEvent): void => {
+            if (e.key === "Escape") {
                 onClose();
             }
         };
@@ -110,17 +98,14 @@ function TokenContextMenu({
     /**
      * Отправить обновление токена на сервер.
      */
-    const sendPatch = (patch: Record<string, unknown>): void =>
-    {
+    const sendPatch = (patch: Record<string, unknown>): void => {
         const socket = getSocket();
 
         socket.emit("token:update", { tokenId: token.id, patch });
     };
 
-    const adjustHp = (delta: number): void =>
-    {
-        if (token.hpCurrent === null || token.hpMax === null)
-        {
+    const adjustHp = (delta: number): void => {
+        if (token.hpCurrent === null || token.hpMax === null) {
             return;
         }
 
@@ -129,10 +114,8 @@ function TokenContextMenu({
         sendPatch({ hpCurrent: newHp });
     };
 
-    const adjustSp = (delta: number): void =>
-    {
-        if (token.spCurrent === null || token.spMax === null)
-        {
+    const adjustSp = (delta: number): void => {
+        if (token.spCurrent === null || token.spMax === null) {
             return;
         }
 
@@ -141,10 +124,8 @@ function TokenContextMenu({
         sendPatch({ spCurrent: newSp });
     };
 
-    const adjustExp = (delta: number): void =>
-    {
-        if (token.experience === null)
-        {
+    const adjustExp = (delta: number): void => {
+        if (token.experience === null) {
             return;
         }
 
@@ -155,8 +136,7 @@ function TokenContextMenu({
 
     const handleDelete = (): void => setConfirmDelete(true);
 
-    const handleDeleteConfirm = (): void =>
-    {
+    const handleDeleteConfirm = (): void => {
         const socket = getSocket();
         socket.emit("token:delete", { tokenId: token.id });
         setConfirmDelete(false);
@@ -185,8 +165,19 @@ function TokenContextMenu({
                     <span style={styles.headerName}>{token.name}</span>
                 </div>
 
-                {!canEdit && (
-                    <div style={styles.readonly}>Только чтение</div>
+                {/* {!canEdit && <div style={styles.readonly}>Только чтение</div>} */}
+
+                {onOpenNotes && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            onOpenNotes();
+                            onClose();
+                        }}
+                        style={styles.notesButton}
+                    >
+                        Личные заметки
+                    </button>
                 )}
 
                 {canEdit && token.hpCurrent !== null && token.hpMax !== null && (
@@ -247,9 +238,7 @@ function TokenContextMenu({
 
                 {canEdit && token.experience !== null && (
                     <div style={styles.section}>
-                        <div style={styles.sectionTitle}>
-                            Опыт: {token.experience}
-                        </div>
+                        <div style={styles.sectionTitle}>Опыт: {token.experience}</div>
                         <div style={styles.buttonRow}>
                             {[-100, -10, -1].map((d) => (
                                 <button
@@ -275,12 +264,12 @@ function TokenContextMenu({
 
                 {canEdit && token.level !== null && (
                     <div style={styles.section}>
-                        <div style={styles.sectionTitle}>
-                            Уровень: {token.level}
-                        </div>
+                        <div style={styles.sectionTitle}>Уровень: {token.level}</div>
                         <div style={styles.buttonRow}>
                             <button
-                                onClick={() => sendPatch({ level: Math.max(1, (token.level ?? 1) - 1) })}
+                                onClick={() =>
+                                    sendPatch({ level: Math.max(1, (token.level ?? 1) - 1) })
+                                }
                                 style={styles.deltaButton}
                             >
                                 −1
@@ -298,10 +287,7 @@ function TokenContextMenu({
                 {isGm && !token.isMain && (
                     <>
                         <div style={styles.divider} />
-                        <button
-                            onClick={handleDelete}
-                            style={styles.deleteButton}
-                        >
+                        <button onClick={handleDelete} style={styles.deleteButton}>
                             Удалить токен
                         </button>
                     </>
@@ -387,6 +373,17 @@ const styles = {
         color: "#e8e8e8",
         cursor: "pointer",
         minWidth: "36px",
+    },
+    notesButton: {
+        padding: "0.5rem 0.75rem",
+        background: "#34343a",
+        border: "1px solid #46464d",
+        borderRadius: "4px",
+        color: "#e8e8e8",
+        fontSize: "0.8125rem",
+        textAlign: "left" as const,
+        cursor: "pointer",
+        marginBottom: "0.25rem",
     },
     divider: {
         height: "1px",

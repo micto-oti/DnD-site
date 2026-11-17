@@ -1,0 +1,13 @@
+.git
+.obsidian
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+**/uploads
+**/*.log
+docker/postgres/data
+.aws
+.codex
+.agents

@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { useAssetStore } from "@/store/asset.store.js";
 import type { Asset } from "@gm-table/shared";
 
+import StatusLibrary from "./StatusLibrary.js";
+
 import AssetFolders from "./AssetFolders.js";
 import AssetGrid from "./AssetGrid.js";
 import AssetModal from "./AssetModal.js";
@@ -14,6 +16,7 @@ interface AssetPanelProps
 
 function AssetPanel({ roomId }: AssetPanelProps): React.JSX.Element
 {
+    const [assetType, setAssetType] = useState<"tokens" | "statuses">("tokens");
     const folders = useAssetStore((s) => s.folders);
     const assets = useAssetStore((s) => s.assets);
 
@@ -53,6 +56,11 @@ function AssetPanel({ roomId }: AssetPanelProps): React.JSX.Element
 
     return (
         <div style={styles.panel}>
+            <nav className="asset-types" aria-label="Тип ассетов">
+                <button aria-pressed={assetType === "tokens"} onClick={() => setAssetType("tokens")}>Токены</button>
+                <button aria-pressed={assetType === "statuses"} onClick={() => setAssetType("statuses")}>Статусы</button>
+            </nav>
+            <div className="asset-panel-content" hidden={assetType !== "tokens"} style={assetType !== "tokens" ? { display: "none" } : undefined}>
             <AssetFolders
                 folders={folders}
                 activeFolderId={effectiveFolderId}
@@ -68,12 +76,15 @@ function AssetPanel({ roomId }: AssetPanelProps): React.JSX.Element
                     style={styles.fab}
                     title="Создать ассет"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                 </button>
             </div>
+
+            </div>
+            {assetType === "statuses" && <div className="asset-panel-content"><StatusLibrary key={roomId} roomId={roomId} /></div>}
 
             <AssetModal
                 open={modalOpen}
@@ -89,7 +100,7 @@ function AssetPanel({ roomId }: AssetPanelProps): React.JSX.Element
 const styles = {
     panel: {
         display: "flex",
-        flexDirection: "column" as const,
+        flexDirection: "row" as const,
         height: "160px",
         borderTop: "1px solid #2a2a2e",
         background: "#1a1a1d",

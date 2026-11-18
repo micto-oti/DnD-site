@@ -148,7 +148,7 @@ export async function updateToken(
     if (input.spMax !== undefined) data.spMax = input.spMax;
     if (input.level !== undefined) data.level = input.level;
     if (input.experience !== undefined) data.experience = input.experience;
-    if (input.statuses !== undefined) data.statuses = input.statuses;
+    if (input.statuses !== undefined) throw new TokenError("INVALID_STATUS_UPDATE", "Используйте отдельное действие для изменения эффекта");
 
     const token = await prisma.token.update({
         where: { id: tokenId },

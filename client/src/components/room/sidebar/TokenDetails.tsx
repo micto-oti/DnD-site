@@ -1,3 +1,4 @@
+import TokenStatusList from "@/components/room/assets/TokenStatusList.js";
 import { useEffect, useState } from "react";
 
 import { uploadFile } from "@/api/upload.js";
@@ -142,6 +143,7 @@ function TokenDetails({ token, isGm, myUserId }: TokenDetailsProps): React.JSX.E
                     {!canEdit && <div style={styles.readonly}>только чтение</div>}
                 </div>
 
+                <TokenStatusList token={token} canEdit={canEdit} />
                 {/* Имя */}
                 <Field label="Имя">
                     <input

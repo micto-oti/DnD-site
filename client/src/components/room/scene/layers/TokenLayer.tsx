@@ -7,6 +7,7 @@ import Token from "../Token.js";
 interface TokenLayerProps
 {
     tokens: TokenType[];
+    statusTarget: string | null;
     scale: number;
     myUserId: string | null;
     isGm: boolean;
@@ -17,6 +18,7 @@ interface TokenLayerProps
 
 function TokenLayer({
     tokens,
+    statusTarget,
     scale,
     myUserId,
     isGm,
@@ -31,6 +33,7 @@ function TokenLayer({
                 <Token
                     key={token.id}
                     token={token}
+                    statusHighlight={token.id === statusTarget}
                     scale={scale}
                     isOwn={myUserId !== null && token.ownerId === myUserId}
                     isGm={isGm}

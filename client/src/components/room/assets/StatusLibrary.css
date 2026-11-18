@@ -1,0 +1,30 @@
+ .asset-types { display:flex; flex-shrink:0; flex-direction:column; gap:8px; padding:12px 8px; border-right:1px solid #34343b; width:100px; }
+.asset-types button { padding:10px 6px; border:1px solid #393941; border-radius:6px; background:#27272c; color:#ddd; cursor:pointer; }
+.asset-types button[aria-pressed="true"] { background:#3a7bd5; color:white; border-color:#3a7bd5; }
+.asset-panel-content { display:flex; flex:1; flex-direction:column; min-width:0; }
+.status-library { display:flex; flex-direction:column; height:100%; min-height:0; }
+.status-library__toolbar { display:flex; gap:12px; padding:8px 12px; border-bottom:1px solid #2a2a2e; }
+.status-library__toolbar input { min-width:0; max-width:320px; flex:1; padding:6px 10px; background:#27272c; color:white; border:1px solid #444; border-radius:5px; }
+.status-library__toolbar button, .status-editor button { padding:6px 12px; background:#3a7bd5; color:white; border:0; border-radius:5px; cursor:pointer; }
+.status-library__items { display:flex; gap:12px; padding:10px 14px; overflow:auto; flex:1; }
+.status-library__item { display:flex; flex-direction:column; align-items:center; gap:3px; width:100px; flex-shrink:0; background:transparent; border:0; color:#eee; cursor:pointer; }
+.status-library__item > span:not(.status-library__icon) { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.status-library__item small { color:#aaa; font-size:10px; }
+.status-library__icon { display:grid; place-items:center; border:2px solid; border-radius:50%; width:40px; height:40px; font-size:24px; background:#29292f; }
+.status-editor { display:flex; flex-direction:column; gap:14px; }
+.status-editor fieldset { display:flex; flex-direction:column; gap:12px; border:0; padding:0; }
+.status-editor label { display:flex; flex-direction:column; gap:5px; }
+.status-editor input:not([type="checkbox"]):not([type="color"]) { padding:8px; border:1px solid #555; border-radius:4px; background:#1a1a1d; color:white; }
+.status-editor .status-editor__check { flex-direction:row; align-items:center; gap:8px; }
+.status-editor__actions { display:flex; justify-content:flex-end; gap:10px; }
+.status-editor button:disabled { opacity:.5; cursor:default; }
+.status-editor [role="alert"] { color:#ff9e9e; }
+.asset-types button:focus-visible, .status-library button:focus-visible { outline:2px solid #9ac7ff; outline-offset:2px; }
+
+.token-status-picker { display:flex; flex-wrap:wrap; gap:8px; max-height:300px; overflow:auto; }
+.token-status-number { display:flex; gap:8px; align-items:center; }
+.token-status-number input { width:85px; min-width:0; }
+.token-status-list { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+.token-status-list > div { display:flex; flex-wrap:wrap; gap:6px; }
+.token-status-list button { padding:6px 8px; background:#303039; color:#eee; border:1px solid #51515b; border-radius:5px; cursor:pointer; }
+.status-editor form { display:flex; flex-direction:column; gap:16px; }

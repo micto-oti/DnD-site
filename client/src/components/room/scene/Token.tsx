@@ -1,3 +1,5 @@
+import { useRoomStore } from "@/store/room.store.js";
+import { useTokenStatusUi } from "@/store/token-status-ui.store.js";
 import { useEffect, useState } from "react";
 import { Circle, Group, Image as KonvaImage, Text } from "react-konva";
 
@@ -14,6 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface TokenProps
 {
     token: TokenType;
+    statusHighlight: boolean;
     scale: number;
     isOwn: boolean;
     isGm: boolean;
@@ -29,6 +32,7 @@ interface TokenProps
  */
 function Token({
     token,
+    statusHighlight,
     scale,
     isOwn,
     isGm,
@@ -38,12 +42,6 @@ function Token({
 }: TokenProps): React.JSX.Element | null
 {
     const [avatarImage, setAvatarImage] = useState<HTMLImageElement | null>(null);
-
-    // Токен игрока, который оффлайн — не показываем
-    if (token.ownerId && !token.isOnline && !isGm)
-    {
-        return null;
-    }
 
     // Загружаем аватар
     useEffect(() =>
@@ -80,8 +78,19 @@ function Token({
     // Обводка для аватара
     const innerRadius = radius - 3 * scale;
     const activeTool = useUiStore((s) => s.activeTool);
+    const definitions = useRoomStore((state) => state.statuses);
+    const openStatus = useTokenStatusUi((state) => state.open);
     const canDrag = (isOwn || isGm) && activeTool === null;
     
+
+    // Токен игрока, который оффлайн — не показываем
+    if (token.ownerId && !token.isOnline && !isGm)
+    {
+        return null;
+    }
+
+    const chipSize = Math.max(22, 32 * scale);
+    const statusY = radius + (token.hpCurrent !== null ? 12 * scale : 0) + (token.spCurrent !== null ? 12 * scale : 0) + chipSize / 2 + 8;
 
     return (
         <Group
@@ -157,6 +166,7 @@ function Token({
                 onMove(token.id, clampedX, clampedY);
             }}
         >
+            {statusHighlight && <Circle radius={radius + 6} stroke="#83e9ff" strokeWidth={3} listening={false} />}
             {/* Цветной кружок */}
             <Circle radius={radius} fill={token.color} />
 
@@ -217,6 +227,22 @@ function Token({
                     yOffset={radius + (token.hpCurrent !== null ? 12 * scale : 4 * scale)}
                 />
             )}
+            {token.statuses.map((effect, index) => {
+                const definition = definitions.find((d) => d.id === effect.id);
+                const label = `${definition?.name ?? "Эффект"}: сила ${effect.stacks}${effect.count !== null ? `, счётчик ${effect.count}` : ""}`;
+                const columns = Math.min(4, token.statuses.length);
+                return <Group key={effect.id} x={(index % 4 - (columns - 1) / 2) * (chipSize + 5)} y={statusY + Math.floor(index / 4) * (chipSize + 18)}
+                    onMouseDown={(e) => { e.cancelBubble = true; }} onTouchStart={(e) => { e.cancelBubble = true; }}
+                    onClick={(e) => { e.cancelBubble = true; openStatus(token.id, effect.id); }}
+                    onTap={(e) => { e.cancelBubble = true; openStatus(token.id, effect.id); }}
+                    onDblClick={(e) => { e.cancelBubble = true; }}
+                    onMouseEnter={(e) => { const element = e.target.getStage()?.container(); if (element) { element.title = label; element.style.cursor = "pointer"; } }}
+                    onMouseLeave={(e) => { const element = e.target.getStage()?.container(); if (element) { element.title = ""; element.style.cursor = "default"; } }}>
+                    <Circle radius={chipSize / 2} fill="#23232b" stroke={definition?.color ?? "#aaa"} strokeWidth={2} />
+                    <Text text={definition?.icon ?? "?"} x={-chipSize / 2} y={-chipSize / 2 + 2} width={chipSize} align="center" fontSize={chipSize - 5} />
+                    <Text text={`${effect.stacks}${effect.count !== null ? ` / ${effect.count}` : ""}`} x={-chipSize} y={chipSize / 2 + 2} width={chipSize * 2} align="center" fill="white" fontSize={10} />
+                </Group>;
+            })}
         </Group>
     );
 }

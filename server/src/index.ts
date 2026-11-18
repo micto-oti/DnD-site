@@ -1,4 +1,6 @@
+import { registerTokenStatusRoutes } from "@/api/token-statuses.routes.js";
 import path from "node:path";
+import { registerStatusRoutes } from "@/api/statuses.routes.js";
 
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
@@ -69,6 +71,8 @@ const start = async (): Promise<void> => {
     await registerTokenRoutes(app);
     await registerTokenNoteRoutes(app);
     await registerAssetRoutes(app);
+    await registerStatusRoutes(app);
+    await registerTokenStatusRoutes(app);
     await registerUploadRoutes(app);
     await registerUserRoutes(app);
 

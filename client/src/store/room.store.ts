@@ -143,3 +143,12 @@ export const useRoomStore = create<RoomStore>((set) => ({
 
     reset: () => set(initialState),
 }));
+
+export function upsertRoomStatus(status: StatusDefinition): void {
+    useRoomStore.setState((state) => {
+        if (state.room?.id !== status.roomId) return state;
+        return { statuses: state.statuses.some((item) => item.id === status.id)
+            ? state.statuses.map((item) => item.id === status.id ? status : item)
+            : [...state.statuses, status] };
+    });
+}

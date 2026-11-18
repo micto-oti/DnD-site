@@ -1,3 +1,4 @@
+import { applyTokenStatus } from "@/api/token-statuses.js";
 import { useEffect, useRef, useState } from "react";
 import { Layer, Stage } from "react-konva";
 
@@ -53,9 +54,20 @@ function SceneCanvas({
     onTextContextMenu,
 }: SceneCanvasProps): React.JSX.Element
 {
+    const [statusTarget, setStatusTarget] = useState<string | null>(null);
+    const [statusError, setStatusError] = useState("");
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
     const activeTool = useUiStore((s) => s.activeTool);
+    useEffect(() => {
+        const clearTarget = (): void => setStatusTarget(null);
+        window.addEventListener("dragend", clearTarget);
+        window.addEventListener("drop", clearTarget);
+        return () => {
+            window.removeEventListener("dragend", clearTarget);
+            window.removeEventListener("drop", clearTarget);
+        };
+    }, []);
 
     useEffect(() =>
     {
@@ -169,6 +181,14 @@ function SceneCanvas({
         });
     };
 
+    const findDropTarget = (clientX: number, clientY: number): TokenType | null => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect || scale <= 0) return null;
+        const visible = tokens.filter((t) => isGm || !t.ownerId || t.isOnline);
+        const target = findTokenAtPoint(clientX - rect.left - offsetX, clientY - rect.top - offsetY, visible, scale);
+        return target && (isGm || (myUserId !== null && target.ownerId === myUserId)) ? target : null;
+    };
+
     return (
         <div
             ref={containerRef}
@@ -181,14 +201,33 @@ function SceneCanvas({
             }}
             onDragOver={(e) =>
             {
+                if (e.dataTransfer.types.includes("application/x-status-id")) {
+                    e.preventDefault();
+                    const target = findDropTarget(e.clientX, e.clientY);
+                    setStatusTarget(target?.id ?? null);
+                    e.dataTransfer.dropEffect = target ? "copy" : "none";
+                    return;
+                }
                 if (e.dataTransfer.types.includes("application/x-asset-id"))
                 {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = "copy";
                 }
             }}
+            onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setStatusTarget(null); }}
             onDrop={(e) =>
             {
+                setStatusTarget(null);
+                const statusId = e.dataTransfer.getData("application/x-status-id");
+                if (statusId) {
+                    e.preventDefault();
+                    const target = findDropTarget(e.clientX, e.clientY);
+                    if (target) {
+                        setStatusError("");
+                        void applyTokenStatus(target.id, statusId).catch((error: unknown) => setStatusError(error instanceof Error ? error.message : "Не удалось наложить эффект"));
+                    }
+                    return;
+                }
                 const assetId = e.dataTransfer.getData("application/x-asset-id");
 
                 if (!assetId)
@@ -256,6 +295,7 @@ function SceneCanvas({
                         scale={scale} 
                     />
                     <TokenLayer
+                        statusTarget={statusTarget}
                         tokens={tokens}
                         scale={scale}
                         myUserId={myUserId}
@@ -269,6 +309,7 @@ function SceneCanvas({
                     <Layer />
                 </Stage>
             )}
+            {statusError && <div role="alert" style={{ position: "absolute", top: 8, left: 8, padding: 12, background: "#422", color: "white", zIndex: 20 }}>{statusError} <button onClick={() => setStatusError("")}>Закрыть</button></div>}
             <Toolbar roomId={roomId} isGm={isGm} myUserId={myUserId} />
         </div>
     );

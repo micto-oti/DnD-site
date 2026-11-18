@@ -1,3 +1,5 @@
+import TokenStatusDialog from "@/components/room/assets/TokenStatusDialog.js";
+import { upsertRoomStatus } from "@/store/room.store.js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -321,6 +323,9 @@ function RoomPage(): React.JSX.Element {
             setLoading(false);
         };
 
+        const handleStatus = ({ status }: { status: import("@gm-table/shared").StatusDefinition }): void => upsertRoomStatus(status);
+        socket.on("status:created", handleStatus);
+        socket.on("status:updated", handleStatus);
         socket.on("room:state", handleState);
         socket.on("room:user-joined", handleUserJoined);
         socket.on("room:user-left", handleUserLeft);
@@ -352,6 +357,8 @@ function RoomPage(): React.JSX.Element {
         socket.emit("room:join", { roomId: id });
 
         return () => {
+            socket.off("status:created", handleStatus);
+            socket.off("status:updated", handleStatus);
             socket.off("room:state", handleState);
             socket.off("room:user-joined", handleUserJoined);
             socket.off("room:user-left", handleUserLeft);
@@ -667,6 +674,7 @@ function RoomPage(): React.JSX.Element {
                 />
             )}
 
+            <TokenStatusDialog key={room.id} />
             {isGm && <AssetPanel roomId={room.id} />}
 
             {sceneMenu && (

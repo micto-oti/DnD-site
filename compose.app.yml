@@ -1,0 +1,52 @@
+# App only. The existing PostgreSQL container is managed separately.
+name: gm-table-app
+services:
+    server:
+        build:
+            context: .
+            dockerfile: docker/server.Dockerfile
+        init: true
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            NODE_ENV: development
+            SERVER_HOST: 0.0.0.0
+            SERVER_PORT: "3000"
+            UPLOAD_DIR: /app/server/uploads
+            DOCKER_DB_HOST: ${DOCKER_DB_HOST:-postgres}
+            DOCKER_DB_PORT: ${DOCKER_DB_PORT:-5432}
+        volumes:
+            - type: bind
+              source: ${DOCKER_UPLOAD_DIR:-./server/uploads}
+              target: /app/server/uploads
+              bind:
+                  create_host_path: false
+        networks:
+            - default
+            - database
+        healthcheck:
+            test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
+    client:
+        build:
+            context: .
+            dockerfile: docker/client.Dockerfile
+        init: true
+        restart: unless-stopped
+        environment:
+            # Browser requests use the page origin, including uploaded images.
+            VITE_API_URL: ""
+            VITE_WS_URL: ""
+            DOCKER_API_TARGET: http://server:3000
+        ports:
+            - "${DOCKER_CLIENT_PORT:-40310}:5173"
+        depends_on:
+            server:
+                condition: service_healthy
+networks:
+    database:
+        external: true
+        name: ${DOCKER_DB_NETWORK:-dnd-site_default}
